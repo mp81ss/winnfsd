@@ -1,3 +1,4 @@
+#include <ws2tcpip.h>
 #include "RPCServer.h"
 #include "ServerSocket.h"
 #include <stdio.h>
@@ -42,6 +43,9 @@ typedef struct
     OPAQUE_AUTH cred;
     OPAQUE_AUTH verf;
 } RPC_HEADER;
+
+ULONG g_whiteList[WHITELIST_LIMIT + 1U];
+
 
 CRPCServer::CRPCServer()
 {
@@ -130,6 +134,19 @@ int CRPCServer::Process(int nType, IInputStream *pInStream, IOutputStream *pOutS
     if (nType == SOCK_STREAM) {
         nPos = pOutStream->GetPosition();  //remember current position
         pOutStream->Write(header.header);  //this value will be updated later
+    }
+
+    if (nResult == PRC_OK) {
+        bool found = !*g_whiteList;
+        ULONG arrived;
+        inet_pton(AF_INET, pRemoteAddr, &arrived);
+        for (ULONG i = 0U; !found && (i < *g_whiteList); i++) {
+            found = (g_whiteList[i + 1U] == arrived);
+        }
+        if (!found) {
+            printf("Connection not allowed from %s\n", pRemoteAddr);
+            nResult = PRC_FAIL;
+        }
     }
 
     pOutStream->Write(header.XID);

@@ -1,3 +1,4 @@
+#include <ws2tcpip.h>
 #include "Socket.h"
 #include "RPCServer.h"
 #include "PortmapProg.h"
@@ -25,6 +26,8 @@ enum
     PROG_MOUNT = 100005
 };
 
+extern ULONG g_whiteList[WHITELIST_LIMIT];
+
 static unsigned int g_nUID, g_nGID;
 static bool g_bLogOn;
 static char *g_sFileName;
@@ -36,7 +39,7 @@ static CMountProg g_MountProg;
 static void printUsage(char *pExe)
 {
     printf("\n");
-    printf("Usage: %s [-id <uid> <gid>] [-log on | off] [-pathFile <file>] [-addr <ip>] [export path] [alias path]\n\n", pExe);
+    printf("Usage: %s [-id <uid> <gid>] [-log on | off] [-pathFile <file>] [-addr <ip>] [-allow <ip[,ip...]>] [export path] [alias path]\n\n", pExe);
     printf("At least a file or a path is needed\n");
     printf("For example:\n");
     printf("On Windows> %s d:\\work\n", pExe);
@@ -66,6 +69,7 @@ static void printAbout(void)
     printf("Edited in 2013 by Alexander Schneider (Jankowfsky AG)\n");
 	printf("Edited in 2014 2015 by Yann Schepens\n");
 	printf("Edited in 2016 by Peter Philipp (Cando Image GmbH), Marc Harding\n");
+    printf("Edited in 2021 by mp81ss\n");
     printLine();
 }
 
@@ -235,6 +239,38 @@ static void start(std::vector<std::vector<std::string>> paths)
 	}
 }
 
+static bool processWhiteList(char* wl)
+{
+    char* p = wl;
+    
+    while (*p && (*g_whiteList < WHITELIST_LIMIT)) {
+        const size_t len = strcspn(p, ",");
+        const char c = p[len];
+
+        p[len] = '\0';
+        if (inet_pton(AF_INET, p, &g_whiteList[*g_whiteList + 1U]) == 1) {
+            *g_whiteList += 1U;
+            printf("Allowing address %s\n", p);
+        }
+        else {
+            printf("Malofrmed whitelist IP: <%s>\n", p);
+            return false;
+        }
+
+        p += len;
+        if (c == ',') {
+            p++;
+        }
+    }
+
+    if (*p) {
+        puts("Whitelist too long");
+        return false;
+    }
+
+    return true;
+}
+
 int main(int argc, char *argv[])
 {
     std::vector<std::vector<std::string>> pPaths;
@@ -265,6 +301,10 @@ int main(int argc, char *argv[])
             g_bLogOn = _stricmp(argv[++i], "off") != 0;
         } else if (_stricmp(argv[i], "-addr") == 0) {
 			g_sInAddr = argv[++i];
+        } else if (_stricmp(argv[i], "-allow") == 0) {
+			if (!processWhiteList(argv[++i])) {
+              return 1;
+            }
 		} else if (_stricmp(argv[i], "-pathFile") == 0) {
             g_sFileName = argv[++i];
 

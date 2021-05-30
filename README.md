@@ -1,14 +1,18 @@
 # WinNFSd
 
-[![Build status](https://ci.appveyor.com/api/projects/status/github/winnfsd/winnfsd?svg=true)](https://ci.appveyor.com/project/MarcHarding/winnfsd-6y1xi/branch/master)
-
 Introduction
 ------------
-* Fork of WinNFSd_edited by ZeWarden(http://github.com/ZeWaren/WinNFSd_edited), based on WinNFSd by vincentgao (http://sourceforge.net/projects/winnfsd/).
+* Fork of WinNFSd (https://github.com/winnfsd/winnfsd)
 * License: GPL.
 * Runs on all major versions of Windows.
 
 Description
+--------------------
+My fork just:
+* Remove some compiler error on newer compiler
+* Add the ```-allow``` option to set whitelist client ip  
+
+Original Description
 --------------------
 WinNFSd is a Network File System V3 (NFS) server for Windows.
 
@@ -31,16 +35,17 @@ Usage
 -------------------
 ```
 =====================================================
-WinNFSd 2.2.0
+WinNFSd {{VERSION}} [{{HASH}}]
 Network File System server for Windows
 Copyright (C) 2005 Ming-Yang Kao
 Edited in 2011 by ZeWaren
 Edited in 2013 by Alexander Schneider (Jankowfsky AG)
 Edited in 2014 2015 by Yann Schepens
 Edited in 2016 by Peter Philipp (Cando Image GmbH), Marc Harding
+Edited in 2021 by mp81ss
 =====================================================
 
-Usage: WinNFSd.exe [-id <uid> <gid>] [-log on | off] [-pathFile <file>] [-addr <ip>] [export path] [alias path]
+Usage: WinNFSd.exe [-id <uid> <gid>] [-log on | off] [-pathFile <file>] [-addr <ip>] [-allow <ip[,ip...]>] [export path] [alias path]
 
 At least a file or a path is needed
 For example:

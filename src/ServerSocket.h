@@ -5,6 +5,8 @@
 #include "Socket.h"
 #include <winsock.h>
 
+#define WHITELIST_LIMIT 127U
+
 class CServerSocket
 {
     public:
