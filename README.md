@@ -12,6 +12,10 @@ My fork just:
 * Remove some compiler error on newer compiler
 * Add the ```-allow``` option to set whitelist client ip  
 
+# WARNING!!!
+Compiling with mingw32, everything is ok.\
+Compiling with mingw64, server hangs, hanging clients too, both in my fork and in the original repo.
+
 Original Description
 --------------------
 WinNFSd is a Network File System V3 (NFS) server for Windows.
